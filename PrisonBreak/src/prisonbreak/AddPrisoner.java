@@ -98,6 +98,7 @@ public class AddPrisoner extends javax.swing.JFrame {
                         .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(22, 22, 22))))
             .addGroup(layout.createSequentialGroup()
+                .addGap(40, 40, 40)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel2)
                     .addComponent(jLabel1))
@@ -155,7 +156,7 @@ public class AddPrisoner extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here
-       // AddAgain aa = new AddAgain();
+        //AddAgain aa = new AddAgain();
         //aa.setVisible();
     }//GEN-LAST:event_jButton1ActionPerformed
 
