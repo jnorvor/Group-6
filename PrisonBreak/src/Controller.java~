@@ -1,0 +1,388 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ *
+ * @author salifu
+ */
+
+import View.Guards;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+//import java.sql.PreparedStatement;
+import java.util.Scanner;
+import javax.swing.JFrame;
+//import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import view.*;
+import model.*;
+
+public class Controller implements ActionListener {
+    java.sql.Connection conn = null;
+    java.sql.Statement s;
+    java.sql.ResultSet r;
+
+    //private static final AddAgain frame1 = new AddAgain();
+    private static final view.menu themenu = new view.menu();
+    private static final view.LogIN login = new view.LogIN();
+    //private static final AddPrisoner adder =  new AddPrisoner();
+    private static final viewPrisoners viewPrisoners = new viewPrisoners();
+    //private static final AddPrisoner addP = null;
+    private static final prisonerdetails detailsP = new prisonerdetails();
+    private static final log thelog = new log();
+    private static final Guards theguard = new Guards();
+    private static final ListGuard listguard = new ListGuard();
+    private static final database dbc = new database();
+    static int counter = 0;
+    JFrame frame = new JFrame();
+    
+    String username;
+    String password;
+    
+    
+    public Controller(){
+        initialize();
+        listeners();
+    }
+    
+    public void initialize() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            conn = java.sql.DriverManager.getConnection(
+                    "jdbc:mysql://localhost/PrisonBreak?user=root&password=");
+
+        } catch (Exception e) {
+            System.out.println(e);
+            signout(login);
+        }
+        System.out.println("Connection established");
+    }
+    
+    private void listeners(){
+        //login.setVisible(true);
+        /*frame1.addButtonActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            frame1.setVisible(false);
+            themenu.setVisible(true);
+        }
+      }
+    );*/
+        //menu -- sign out
+        themenu.signOut(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            signout(themenu);
+        }
+      }
+    );
+        
+        //login
+        login.addLogButtonActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+                if((dbc.logIn(login.getusername(), login.getpassword())) == false){
+                    JOptionPane.showMessageDialog(login, "Your login details are not recognized by the system.");
+                }
+                else{
+                username = login.getusername();
+                password = login.getpassword();
+                login.setVisible(false);
+                themenu.setVisible(true);
+            }
+       
+        }
+      }
+    );
+        //menu view prisoners
+         themenu.viewPrisonerButtonActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            themenu.setVisible(false);
+            viewPrisoners.setVisible(true);
+        }
+      }
+    );
+         
+             //menu log file
+         themenu.viewPrisonerButtonActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            themenu.setVisible(false);
+            thelog.setVisible(true);
+        }
+      }
+    );
+         //menu -- add Prisoner
+     /* themenu.addPrisonerButtonActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            themenu.setVisible(false);
+            addP.setVisible(true);
+        }
+      }
+    );
+        //add prisoner --- view prisoners
+         addP.viewPrisoners(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            addP.setVisible(false);
+            viewPrisoners.setVisible(true);
+        }
+      }
+    );
+
+        //add prisoner, move to addagain or next page
+        addP.addPrisoner(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          //put add code
+            
+        }
+      }
+    );
+        //add prisoner -- menu
+         addP.menu(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          addP.setVisible(false);
+          themenu.setVisible(true);
+        }
+      }
+    );
+         
+        //View prisoners -- add prisoner
+         viewPrisoners.addP(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          viewPrisoners.setVisible(false);
+          addP.setVisible(true);
+        }
+      }
+    );*/
+ 
+                 //add prisoner -- menu
+         viewPrisoners.menu(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          viewPrisoners.setVisible(false);
+          themenu.setVisible(true);
+        }
+      }
+    );
+         
+        //view prisoner -- view prisoner details
+         viewPrisoners.viewP(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          viewPrisoners.setVisible(false);
+          detailsP.setVisible(true);
+        }
+      }
+    );
+         
+        //menu -- add guard
+         themenu.addguard(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          themenu.setVisible(false);
+          theguard.setVisible(true);
+        }
+      }
+    );
+         
+        //guard -- add guard
+         theguard.newGuard(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          addGuard();
+        }
+      }
+    );
+               //guard -- signout
+         theguard.exit(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          signout(theguard);
+        }
+      }
+    );
+      
+         //guard -- view guards
+        theguard.viewguards(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          theguard.setVisible(false);
+          listguard.setVisible(true);
+          displayGuards(dbc.showGuards());
+        }
+      }
+    );
+ 
+         //guard -- view prisoners
+        theguard.viewprisoners(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          theguard.setVisible(false);
+          viewPrisoners.setVisible(true);
+        }
+      }
+    );
+    
+              //menu-- view guards
+        themenu.viewguards(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+          themenu.setVisible(false);
+          listguard.setVisible(true);
+          displayGuards(dbc.showGuards());
+        }
+      }
+    );
+        
+        //listguard-- signout
+        listguard.signOut(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+         signout(listguard);
+        }
+      }
+    );
+        
+        //listguard-- EDIT
+        listguard.edit(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+         editGuard();
+        }
+      }
+    );
+        
+       //listguard-- EDIT
+        listguard.delete(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+         deleteGuard();
+        }
+      }
+    );
+       
+    
+       //addP -- delete
+       /* addP.delete(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+        addPrisoner(addP.getfn(), addP.getln(), addP.getaddress(), addP.getbob(), addP.getCrime(), addP.getimpd(), addP.getdbf(), addP.getCrimes());
+        }
+      }
+    );*/
+       
+        //AddPrisoner --Add
+     /*   listguard.delete(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+        if(dbc.addPrisoner(adder.getfn(), adder.getln(), adder.getaddress(), adder.getCombo(), adder.getdob(), adder.getcrime(), adder.getimpd(), adder.getdbf(), adder.getocrimes())==true){
+          JOptionPane.showMessageDialog(listguard, adder.getfn()+" "+adder.getln()+" has been added");  
+        }
+        }
+        
+      }
+    );*/
+    
+    }
+    
+    public void addPrisoner(String one, String two, String three, String four, String five, String six, String seven, String eight, String nine){
+        if(dbc.addPrisoner(one, two, three, four, five, six, seven, eight, nine) == true){
+          
+        }
+    }
+
+    
+    public void addGuard() {
+           if(theguard.getField2().equals("")==false && theguard.getField3().equals("")==false && theguard.getField4().equals("")==false){
+            dbc.addGuard(theguard.getField2(),theguard.getField3(),theguard.getField4(),theguard.getField8(),
+                    theguard.getCombo(),theguard.getField8(), theguard.getField10(), theguard.getField11(), theguard.getField9(), theguard.getCombo2(), theguard.getCombo3());
+            JOptionPane.showMessageDialog(theguard, theguard.getField2()+" "+theguard.getField3()+" has been added!");
+            theguard.reset();
+           }
+           else{
+               JOptionPane.showMessageDialog(theguard,"Please enter new guard information");
+           }
+    }
+    
+    public void displayGuards(java.sql.ResultSet r){
+         try {
+           while(r.next()){
+            listguard.display(r.getString("ID"), r.getString("first_name"), r.getString("last_name"), r.getString("address"), r.getString("date_of_birth"), r.getString("gender"), r.getString("year_employed"), r.getString("role") ,r.getString("shift_start"), r.getString("shift_end"), r.getString("status"), r.getString("station"));
+           }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+        public void deleteGuard() {
+        int row = listguard.getRow();
+        int Code = listguard.getCode();
+        try {
+           dbc.deleteGuard(row, Code);
+           listguard.deleteRow(row);
+        } catch (Exception e) {
+            System.out.println("Error" + e.toString());
+            JOptionPane.showMessageDialog(listguard,"Could not delete guard, try again.");
+        }
+  }
+
+    
+       public void signout(JFrame oldframe){
+           this.username = "";
+           this.password = "";
+           oldframe.setVisible(false);
+           login.clear();
+           login.setVisible(true);
+       }
+       
+       public static void start(){
+           login.setVisible(true);
+       }
+    
+    	//invoked when a button is pressed
+        @Override
+	public void actionPerformed(ActionEvent e){
+        //frame1.addButtonActionListener(e);
+	} //actionPerformed()
+        
+        public void editGuard(){
+        dbc.editGuard(listguard.getCol(), listguard.getGuardID());
+        listguard.setVal(dbc.getmsg(), listguard.getRow(), listguard.getCol());
+    }
+    
+    
+     
+    public static void main(String args[]){
+            //login.setVisible(true);
+            Controller control = new Controller();
+            control.start();
+    }
+    
+    
+   public void logfile(String filename){
+       //log logfile = new log();
+       
+       File thelog = new File(filename);
+       try{
+       Scanner reader = new Scanner(thelog);
+       
+       String line;
+       while(reader.hasNext()){
+           line = reader.next();
+           System.out.println(line);
+       }
+       }catch(FileNotFoundException e){
+           JOptionPane.showMessageDialog(frame,"The Log file is missing from your system. See your administrator.");
+       }
+    }
+    
+}
